@@ -1,96 +1,155 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>ChatGPT Bot</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f1f1f1;
-      padding: 20px;
-    }
-    #chatbox {
-      width: 100%;
-      max-width: 600px;
-      margin: auto;
-      background: white;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    }
-    #messages {
-      height: 400px;
-      overflow-y: auto;
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
-    .msg {
-      margin: 5px 0;
-    }
-    .user {
-      font-weight: bold;
-      color: blue;
-    }
-    .bot {
-      font-weight: bold;
-      color: green;
-    }
-    #userInput {
-      width: 80%;
-      padding: 10px;
-    }
-    #sendBtn {
-      padding: 10px 15px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #fff3e0;
+        }
+        .quiz-container {
+            width: 400px;
+            max-width: 90%;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px;
+            margin: 5px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .score {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
 </head>
 <body>
+    <div class="quiz-container">
+        <h2>Trò Chơi Đố Vui</h2>
+        <div class="question" id="question"></div>
+        <div id="options"></div>
+        <div class="score" id="score">Điểm: 0</div>
+    </div>
 
-<div id="chatbox">
-  <h2>Chat với ChatGPT</h2>
-  <div id="messages"></div>
-  <input type="text" id="userInput" placeholder="Nhập tin nhắn...">
-  <button id="sendBtn" onclick="sendMessage()">Gửi</button>
-</div>
+    <script>
+        const questions = [
+            {
+                question: "1+1 bằng bao nhiêu?",
+                options: ["1", "2", "3", "4"],
+                answer: "2"
+            },
+            {
+                question: "Thủ đô của Việt Nam là gì?",
+                options: ["Hà Nội", "TP.HCM", "Đà Nẵng", "Huế"],
+                answer: "Hà Nội"
+            },
+            {
+                question: "Màu sắc của bầu trời vào ngày nắng là gì?",
+                options: ["Đỏ", "Xanh", "Vàng", "Tím"],
+                answer: "Xanh"
+            },
+            {
+                question: "Ai là tác giả của 'Truyện Kiều'?",
+                options: ["Nguyễn Du", "Nam Cao", "Tô Hoài", "Xuân Diệu"],
+                answer: "Nguyễn Du"
+            },
+            {
+                question: "Nước nào có diện tích lớn nhất thế giới?",
+                options: ["Nga", "Canada", "Trung Quốc", "Mỹ"],
+                answer: "Nga"
+            }
+            ,{
+                question :"Ai là người sáng lập ra Microsoft?",
+                options: ["Steve Jobs", "Thành Trí và Bill Gates ", "Mark Zuckerberg", "Elon Musk"],
+                answer: "Thành Trí "+" và Bill Gates"
+            },{
 
-<script>
-  const API_KEY = "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"; // ← Thay bằng key thật
+                question :"Vịnh Hạ Long thuộc tỉnh nào?",
+                options: ["Quảng Ninh", "Hà Giang", "Ninh Bình", "Thanh Hóa"],
+                answer: "Quảng Ninh"
+            }, {question:"Cố đô của Việt Nam thời nhà Nguyễn là?",
+                options:["Huế", "Hà Nội", "Đà Nẵng", "Nha Trang"],
+                answer: "Huế"
 
-  async function sendMessage() {
-    const userInput = document.getElementById("userInput");
-    const message = userInput.value.trim();
-    if (!message) return;
+            }
+        ];
 
-    addMessage("Bạn", message, "user");
-    userInput.value = "";
+        let currentQuestion = 0;
+        let score = 0;
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: message }]
-      })
-    });
+        function loadQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('question').textContent = q.question;
+            const optionsDiv = document.getElementById('options');
+            optionsDiv.innerHTML = '';
+            q.options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.onclick = () => checkAnswer(option);
+                optionsDiv.appendChild(button);
+            });
+            document.getElementById('score').textContent = `Điểm: ${score}`;
+        }
 
-    const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content || "Lỗi phản hồi!";
-    addMessage("ChatGPT", reply, "bot");
-  }
+        function checkAnswer(selected) {
+            const q = questions[currentQuestion];
+            if (selected === q.answer) {
+                score++;
+            }
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                document.getElementById('question').textContent = 'Hoàn thành!';
+                document.getElementById('options').innerHTML = '';
+                document.getElementById('score').textContent = `Điểm cuối: ${score}/${questions.length}`;
+                ocument.getElementById('score').textContent = `Chúc mừng bạn máy bạn đã dính viruss:)) ${score}/${questions.length}`;
+                const restartButton = document.createElement(' bạn có muốn chơi lại không?');
+                restartButton.textContent = 'Chơi lại';
+                restartButton.onclick = () => {
+                    currentQuestion = 0;
+                    score = 0;
+                    loadQuestion();
+                };
+                document.getElementById('options').appendChild(restartButton);
+                document.getElementById('options').style.textAlign = 'center';
+                document.getElementById('options').style.marginTop = '20px';
+                document.getElementById('options').style.fontSize = '20px';
+                document.getElementById('options').style.color = 'red';
+                document.getElementById('options').style.fontWeight = 'bold';
+                document.getElementById('options').style.fontSize = '30px';
+                document.getElementById('options').style.textAlign = 'center';
+                document.getElementById('options').style.marginTop = '20px';
+                document.getElementById('options').style.color = 'red';
 
-  function addMessage(sender, text, cls) {
-    const messagesDiv = document.getElementById("messages");
-    const msgDiv = document.createElement("div");
-    msgDiv.className = `msg ${cls}`;
-    msgDiv.innerHTML = `<span class="${cls}">${sender}:</span> ${text}`;
-    messagesDiv.appendChild(msgDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-  }
-</script>
+            }
+        }
 
+        loadQuestion();
+    </script>
 </body>
 </html>

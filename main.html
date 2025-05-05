@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>ChatGPT Bot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f1f1f1;
+      padding: 20px;
+    }
+    #chatbox {
+      width: 100%;
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    #messages {
+      height: 400px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .msg {
+      margin: 5px 0;
+    }
+    .user {
+      font-weight: bold;
+      color: blue;
+    }
+    .bot {
+      font-weight: bold;
+      color: green;
+    }
+    #userInput {
+      width: 80%;
+      padding: 10px;
+    }
+    #sendBtn {
+      padding: 10px 15px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="chatbox">
+  <h2>Chat với ChatGPT</h2>
+  <div id="messages"></div>
+  <input type="text" id="userInput" placeholder="Nhập tin nhắn...">
+  <button id="sendBtn" onclick="sendMessage()">Gửi</button>
+</div>
+
+<script>
+  const API_KEY = "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"; // ← Thay bằng key thật
+
+  async function sendMessage() {
+    const userInput = document.getElementById("userInput");
+    const message = userInput.value.trim();
+    if (!message) return;
+
+    addMessage("Bạn", message, "user");
+    userInput.value = "";
+
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: message }]
+      })
+    });
+
+    const data = await response.json();
+    const reply = data.choices?.[0]?.message?.content || "Lỗi phản hồi!";
+    addMessage("ChatGPT", reply, "bot");
+  }
+
+  function addMessage(sender, text, cls) {
+    const messagesDiv = document.getElementById("messages");
+    const msgDiv = document.createElement("div");
+    msgDiv.className = `msg ${cls}`;
+    msgDiv.innerHTML = `<span class="${cls}">${sender}:</span> ${text}`;
+    messagesDiv.appendChild(msgDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+</script>
+
+</body>
+</html>

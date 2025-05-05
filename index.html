@@ -85,7 +85,7 @@
             ,{
                 question :"Ai là người sáng lập ra Microsoft?",
                 options: ["Steve Jobs", "Thành Trí và Bill Gates ", "Mark Zuckerberg", "Elon Musk"],
-                answer: "Thành Trí "+" và Bill Gates"
+                answer: "Thành Trí và Bill Gates"
             },{
 
                 question :"Vịnh Hạ Long thuộc tỉnh nào?",
@@ -125,27 +125,10 @@
                 loadQuestion();
             } else {
                 document.getElementById('question').textContent = 'Hoàn thành!';
-                document.getElementById('options').innerHTML = '';
+                document.getElementById('options').innerHTML = ' Bạn đã mất 1 cái gì đó trong máy !';
                 document.getElementById('score').textContent = `Điểm cuối: ${score}/${questions.length}`;
-                ocument.getElementById('score').textContent = `Chúc mừng bạn máy bạn đã dính viruss:))`;
-                const restartButton = document.createElement(' bạn có muốn chơi lại không?');
-                restartButton.textContent = 'Chơi lại';
-                restartButton.onclick = () => {
-                    currentQuestion = 0;
-                    score = 0;
-                    loadQuestion();
-                };
-                document.getElementById('options').appendChild(restartButton);
-                document.getElementById('options').style.textAlign = 'center';
-                document.getElementById('options').style.marginTop = '20px';
-                document.getElementById('options').style.fontSize = '20px';
-                document.getElementById('options').style.color = 'red';
-                document.getElementById('options').style.fontWeight = 'bold';
-                document.getElementById('options').style.fontSize = '30px';
-                document.getElementById('options').style.textAlign = 'center';
-                document.getElementById('options').style.marginTop = '20px';
-                document.getElementById('options').style.color = 'red';
-
+                document.getElementById('score').textContent = `Chúc mừng bạn máy bạn đã dc cài viruss:))`;
+                
             }
         }
 

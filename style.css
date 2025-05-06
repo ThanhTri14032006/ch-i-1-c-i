@@ -1,0 +1,144 @@
+/* Modal General Styling */
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 28rem;
+  transform: translateY(0);
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Modal Title */
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #1f2937;
+}
+
+/* Form Styling (Login, Register, Checkout, Place Order) */
+#login-form, #register-form, #checkout-modal .space-y-4, #place-order-modal .space-y-4 {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+#login-form input, #register-form input, #checkout-modal input, #place-order-modal input,
+#login-form select, #register-form select, #checkout-modal select, #place-order-modal select,
+#login-form textarea, #register-form textarea, #checkout-modal textarea, #place-order-modal textarea {
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#login-form input:focus, #register-form input:focus, #checkout-modal input:focus, #place-order-modal input:focus,
+#login-form select:focus, #register-form select:focus, #checkout-modal select:focus, #place-order-modal select:focus,
+#login-form textarea:focus, #register-form textarea:focus, #checkout-modal textarea:focus, #place-order-modal textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+#login-form button, #register-form button, #checkout-modal button, #place-order-modal button {
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+#login-form button:first-of-type, #register-form button:first-of-type,
+#checkout-modal button.bg-blue-600, #place-order-modal button.bg-green-600 {
+  background-color: #2563eb;
+  color: white;
+}
+
+#login-form button:first-of-type:hover, #register-form button:first-of-type:hover,
+#checkout-modal button.bg-blue-600:hover, #place-order-modal button.bg-green-600:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+#login-form button:last-of-type, #register-form button:last-of-type {
+  background-color: #4b5563;
+  color: white;
+}
+
+#login-form button:last-of-type:hover, #register-form button:last-of-type:hover {
+  background-color: #374151;
+  transform: translateY(-1px);
+}
+
+/* Product Detail Modal */
+#product-detail-modal .space-y-4 {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+#product-detail-modal button.bg-blue-600, #product-detail-modal button.bg-green-600 {
+  background-color: #2563eb;
+  color: white;
+}
+
+#product-detail-modal button.bg-blue-600:hover, #product-detail-modal button.bg-green-600:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+/* Close Button */
+.modal button:not(#login-form button, #register-form button, #checkout-modal button, #product-detail-modal button, #place-order-modal button) {
+  display: block;
+  margin-top: 1rem;
+  color: #4b5563;
+  font-size: 0.875rem;
+  text-align: center;
+  transition: color 0.2s ease;
+}
+
+.modal button:not(#login-form button, #register-form button, #checkout-modal button, #product-detail-modal button, #place-order-modal button):hover {
+  color: #1f2937;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .modal-content {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+
+  #login-form input, #register-form input, #checkout-modal input, #place-order-modal input,
+  #login-form select, #register-form select, #checkout-modal select, #place-order-modal select,
+  #login-form textarea, #register-form textarea, #checkout-modal textarea, #place-order-modal textarea,
+  #login-form button, #register-form button, #checkout-modal button, #place-order-modal button {
+    font-size: 0.875rem;
+    padding: 0.5rem;
+  }
+
+  .modal-title {
+    font-size: 1.25rem;
+  }
+}

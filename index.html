@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechShop</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js@1.12.0/src/toastify.min.js" defer></script>
+  <link href="https://cdn.jsdelivr.net/npm/toastify-js@1.12.0/src/toastify.min.css" rel="stylesheet">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body class="bg-gray-100">
+  <!-- Header -->
+  <header class="bg-blue-600 text-white p-4">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-2xl font-bold">TechShop</h1>
+      <nav>
+        <a href="#home" class="mx-2 hover:underline">Trang chủ</a>
+        <a href="#products" class="mx-2 hover:underline">Sản phẩm</a>
+        <a href="#cart" id="cart-link" class="mx-2 hover:underline hidden">Giỏ hàng</a>
+        <a href="#orders" id="orders-link" class="mx-2 hover:underline hidden">Đơn hàng</a>
+        <a href="#manage" id="manage-link" class="mx-2 hover:underline hidden">Quản lý</a>
+        <a href="#" id="login-link" class="mx-2 hover:underline" onclick="showLoginModal()">Đăng nhập</a>
+        <a href="#" id="logout-link" class="mx-2 hover:underline hidden" onclick="logout()">Đăng xuất</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto p-4">
+    <!-- Search and Filter -->
+    <section id="home" class="mb-8">
+      <div class="flex flex-col sm:flex-row gap-4 mb-4">
+        <input id="search-input" type="text" placeholder="Tìm kiếm sản phẩm..." class="p-2 border rounded w-full sm:w-1/3">
+        <select id="price-filter" class="p-2 border rounded">
+          <option value="all">Tất cả giá</option>
+          <option value="low">Dưới 10 triệu</option>
+          <option value="medium">10 - 20 triệu</option>
+          <option value="high">Trên 20 triệu</option>
+        </select>
+        <select id="category-filter" class="p-2 border rounded">
+          <option value="all">Tất cả danh mục</option>
+          <option value="laptop">Laptop</option>
+          <option value="pc">PC</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Product List -->
+    <section id="products">
+      <h2 class="text-2xl font-bold mb-4">Sản phẩm</h2>
+      <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+    </section>
+
+    <!-- Cart -->
+    <section id="cart" class="hidden mt-8">
+      <h2 class="text-2xl font-bold mb-4">Giỏ hàng</h2>
+      <div id="cart-items"></div>
+      <p class="text-xl font-bold mt-4">Tổng cộng: <span id="cart-total">0 VNĐ</span></p>
+      <button onclick="checkout()" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 mt-4">Thanh toán</button>
+    </section>
+
+    <!-- Orders -->
+    <section id="orders" class="hidden mt-8">
+      <h2 class="text-2xl font-bold mb-4">Đơn hàng</h2>
+      <div id="order-items"></div>
+    </section>
+
+    <!-- Manage (Developer Only) -->
+    <section id="manage" class="hidden mt-8">
+      <h2 class="text-2xl font-bold mb-4">Quản lý</h2>
+      <div class="mb-8">
+        <h3 class="text-xl font-bold mb-2">Thêm sản phẩm</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <input id="add-name" type="text" placeholder="Tên sản phẩm" class="p-2 border rounded">
+          <input id="add-price" type="number" placeholder="Giá (VNĐ)" class="p-2 border rounded">
+          <select id="add-category" class="p-2 border rounded">
+            <option value="laptop">Laptop</option>
+            <option value="pc">PC</option>
+          </select>
+          <input id="add-image" type="text" placeholder="URL hình ảnh" class="p-2 border rounded">
+          <input id="add-warranty" type="text" placeholder="Bảo hành" class="p-2 border rounded">
+          <input id="add-description" type="text" placeholder="Mô tả" class="p-2 border rounded">
+        </div>
+        <button onclick="addProduct()" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 mt-4">Thêm sản phẩm</button>
+      </div>
+      <div>
+        <h3 class="text-xl font-bold mb-2">Danh sách sản phẩm</h3>
+        <div id="manage-products"></div>
+      </div>
+      <div class="mt-8">
+        <h3 class="text-xl font-bold mb-2">Danh sách người dùng</h3>
+        <div id="manage-users"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Login Modal -->
+  <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden" onclick="closeModalOnOutsideClick(event)">
+    <div class="bg-white p-6 rounded shadow-lg w-full max-w-md" onclick="event.stopPropagation()">
+      <h2 id="modal-title" class="text-2xl font-bold mb-4">Đăng nhập</h2>
+      <!-- Login Form -->
+      <form id="login-form" class="space-y-4">
+        <div>
+          <label for="login-email" class="block text-sm font-medium">Email</label>
+          <input id="login-email" type="email" class="w-full p-2 border rounded" required>
+          <p id="login-email-error" class="text-red-600 text-sm hidden"></p>
+        </div>
+        <div>
+          <label for="login-password" class="block text-sm font-medium">Mật khẩu</label>
+          <div class="relative">
+            <input id="login-password" type="password" class="w-full p-2 border rounded" required>
+            <button type="button" id="login-password-toggle" onclick="togglePasswordVisibility('login-password', 'login-password-toggle')" class="absolute right-2 top-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
+          </div>
+          <p id="login-password-error" class="text-red-600 text-sm hidden"></p>
+        </div>
+        <button id="login-submit-btn" type="submit" onclick="login()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:bg-gray-400" disabled>Đăng nhập</button>
+        <div id="g_id_onload"
+             data-client_id="YOUR_CLIENT_ID.apps.googleusercontent.com"
+             data-callback="handleGoogleSignIn"
+             data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left"></div>
+      </form>
+      <!-- Register Form -->
+      <form id="register-form" class="space-y-4 hidden">
+        <div id="register-form-fields">
+          <div>
+            <label for="register-name" class="block text-sm font-medium">Họ và tên</label>
+            <input id="register-name" type="text" class="w-full p-2 border rounded" required>
+            <p id="register-name-error" class="text-red-600 text-sm hidden"></p>
+          </div>
+          <div>
+            <label for="register-email" class="block text-sm font-medium">Email</label>
+            <input id="register-email" type="email" class="w-full p-2 border rounded" required>
+            <p id="register-email-error" class="text-red-600 text-sm hidden"></p>
+          </div>
+          <div>
+            <label for="register-phone" class="block text-sm font-medium">Số điện thoại</label>
+            <input id="register-phone" type="tel" class="w-full p-2 border rounded" required>
+            <p id="register-phone-error" class="text-red-600 text-sm hidden"></p>
+          </div>
+          <div>
+            <label for="register-password" class="block text-sm font-medium">Mật khẩu</label>
+            <div class="relative">
+              <input id="register-password" type="password" class="w-full p-2 border rounded" required>
+              <button type="button" id="register-password-toggle" onclick="togglePasswordVisibility('register-password', 'register-password-toggle')" class="absolute right-2 top-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </button>
+            </div>
+            <p id="register-password-error" class="text-red-600 text-sm hidden"></p>
+          </div>
+          <div>
+            <label for="register-confirm-password" class="block text-sm font-medium">Xác nhận mật khẩu</label>
+            <div class="relative">
+              <input id="register-confirm-password" type="password" class="w-full p-2 border rounded" required>
+              <button type="button" id="register-confirm-password-toggle" onclick="togglePasswordVisibility('register-confirm-password', 'register-confirm-password-toggle')" class="absolute right-2 top-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </button>
+            </div>
+            <p id="register-confirm-password-error" class="text-red-600 text-sm hidden"></p>
+          </div>
+          <button id="register-submit-btn" type="submit" onclick="register()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:bg-gray-400" disabled>Tạo tài khoản</button>
+        </div>
+        <div id="register-progress" class="hidden">
+          <div class="w-full bg-gray-200 rounded">
+            <div class="bg-blue-600 h-2 rounded" style="width: 0%"></div>
+          </div>
+        </div>
+        <p id="register-success" class="text-green-600 hidden"></p>
+      </form>
+      <div class="mt-4 text-center">
+        <button onclick="switchToRegister()" class="text-blue-600 hover:underline">Tạo tài khoản</button>
+        <button onclick="switchToLogin()" class="text-blue-600 hover:underline hidden">Đăng nhập</button>
+        <button onclick="closeLoginModal()" class="text-red-600 hover:underline ml-4">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Detail Modal -->
+  <div id="product-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white p-6 rounded shadow-lg w-full max-w-lg">
+      <h2 id="product-detail-name" class="text-2xl font-bold mb-4"></h2>
+      <img id="product-detail-image" src="" alt="Sản phẩm" class="w-full h-48 object-cover mb-4 rounded">
+      <p><strong>Giá:</strong> <span id="product-detail-price"></span></p>
+      <p><strong>Danh mục:</strong> <span id="product-detail-category"></span></p>
+      <p><strong>Bảo hành:</strong> <span id="product-detail-warranty"></span></p>
+      <p><strong>Mô tả:</strong> <span id="product-detail-description"></span></p>
+      <div class="mt-4 flex justify-between">
+        <button id="add-to-cart-btn" onclick="addToCartFromModal()" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed">Thêm vào giỏ hàng</button>
+        <button onclick="placeOrder()" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">Đặt đơn</button>
+        <button onclick="hideModal('product-detail-modal')" class="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Checkout Modal -->
+  <div id="checkout-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white p-6 rounded shadow-lg w-full max-w-md">
+      <h2 class="text-2xl font-bold mb-4">Thanh toán</h2>
+      <form class="space-y-4">
+        <div>
+          <label for="checkout-name" class="block text-sm font-medium">Họ và tên</label>
+          <input id="checkout-name" type="text" class="w-full p-2 border rounded" required>
+        </div>
+        <div>
+          <label for="checkout-address" class="block text-sm font-medium">Địa chỉ</label>
+          <input id="checkout-address" type="text" class="w-full p-2 border rounded" required>
+        </div>
+        <div>
+          <label for="checkout-phone" class="block text-sm font-medium">Số điện thoại</label>
+          <input id="checkout-phone" type="tel" class="w-full p-2 border rounded" required>
+        </div>
+        <div>
+          <label for="checkout-email" class="block text-sm font-medium">Email</label>
+          <input id="checkout-email" type="email" class="w-full p-2 border rounded" required>
+        </div>
+        <div class="flex justify-between">
+          <button type="submit" id="confirm-checkout-btn" onclick="confirmCheckout()" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Xác nhận thanh toán</button>
+          <button onclick="closeCheckoutModal()" class="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700">Đóng</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Place Order Modal -->
+  <div id="place-order-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white p-6 rounded shadow-lg w-full max-w-md">
+      <h2 class="text-2xl font-bold mb-4">Đặt đơn hàng</h2>
+      <form class="space-y-4">
+        <div>
+          <label for="order-name" class="block text-sm font-medium">Họ và tên *</label>
+          <input id="order-name" type="text" class="w-full p-2 border rounded" required>
+        </div>
+        <div>
+          <label for="order-phone" class="block text-sm font-medium">Số điện thoại *</label>
+          <input id="order-phone" type="tel" class="w-full p-2 border rounded" required>
+        </div>
+        <div>
+          <label for="order-email" class="block text-sm font-medium">Email *</label>
+          <input id="order-email" type="email" class="w-full p-2 border rounded" required>
+        </div>
+        <div>
+          <label for="order-address" class="block text-sm font-medium">Địa chỉ *</label>
+          <input id="order-address" type="text" class="w-full p-2 border rounded" required>
+        </div>
+        <div>
+          <label for="order-quantity" class="block text-sm font-medium">Số lượng</label>
+          <input id="order-quantity" type="number" min="1" value="1" class="w-full p-2 border rounded">
+        </div>
+        <div>
+          <label for="order-note" class="block text-sm font-medium">Ghi chú</label>
+          <textarea id="order-note" class="w-full p-2 border rounded"></textarea>
+        </div>
+        <div class="flex justify-between">
+          <button type="submit" id="confirm-place-order-btn" onclick="confirmPlaceOrder()" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Xác nhận đặt đơn</button>
+          <button onclick="closePlaceOrderModal()" class="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700">Đóng</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Chat Box -->
+  <div id="chat-toggle" class="fixed bottom-4 right-4 bg-blue-600 text-white p-3 rounded-full cursor-pointer" onclick="toggleChat()">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+    </svg>
+  </div>
+  <div id="chat-box" class="fixed bottom-16 right-4 bg-white rounded shadow-lg w-80 hidden">
+    <div class="bg-blue-600 text-white p-4 rounded-t">
+      <h3 class="text-lg font-bold">Hỗ trợ khách hàng</h3>
+    </div>
+    <div id="chat-contact-form" class="p-4">
+      <input id="chat-name" type="text" placeholder="Tên của bạn" class="w-full p-2 border rounded mb-2">
+      <input id="chat-contact" type="text" placeholder="Email hoặc số điện thoại" class="w-full p-2 border rounded mb-2">
+      <button onclick="startChat()" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Bắt đầu chat</button>
+    </div>
+    <div id="chat-messages" class="p-4 h-64 overflow-y-auto hidden"></div>
+    <div id="chat-input" class="p-4 border-t hidden">
+      <input id="chat-message" type="text" placeholder="Nhập tin nhắn..." class="w-full p-2 border rounded">
+      <button onclick="sendMessage()" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 mt-2">Gửi</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <script>
+    emailjs.init("YOUR_EMAILJS_USER_ID");
+  </script>
+  <script src="scsript.js"></script>
+</body>
+</html>
